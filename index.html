@@ -1,53 +1,281 @@
-<!doctype html>
-<html lang="en-US">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Thank You</title>
-<style>
-  body, html {
-    background-color: gray;
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    overflow: hidden;
-    color: white; /* Set text color to white */
-    font-family: "Arial Black", Gadget, sans-serif; /* Fallback to system-safe fonts */
-  }
-  .container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    width: 100vw;
-    box-sizing: border-box;
-    text-align: center;
-  }
-  .hero {
-    margin: 0;
-    padding: 20px;
-    box-sizing: border-box;
-  }
-  .hero_header {
-     margin-bottom: 10px;
-     font-size: 2.5em; /* Increase header font size */
-     font-weight: bold; /* Make the header bold */
-  }
-  .tagline {
-      font-size: 1.5em; /* Increase tagline font size */
-  }
-</style>
-<script>var __adobewebfontsappname__="dreamweaver"</script>
-<script src="http://use.edgefonts.net/source-sans-pro:n2:default.js" type="text/javascript"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FUSF/FCC & E911 Tax Calculator</title> 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .input-focus:focus {
+            border-color: #2563eb; 
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); 
+        }
+        .output-field {
+            min-height: 42px; 
+        }
+        .hidden-row {
+            display: none !important; 
+        }
+        .rates-content.hidden {
+            display: none;
+        }
+    </style>
 </head>
-<body>
-<div class="container">
-  <section class="hero" id="hero">
-    <h2 class="hero_header">Thank You</h2>
-    <p class="tagline">Your ticket has been submitted</p>
-  </section>
-</div>
+<body class="bg-slate-100 py-6 px-4">
+
+    <div class="container mx-auto max-w-3xl bg-white p-6 sm:p-8 rounded-xl shadow-2xl">
+        <header class="mb-6 text-center">
+            <h1 class="text-3xl font-bold text-slate-700">FUSF/FCC & E911 Tax Calculator</h1> 
+        </header>
+
+        <div class="mb-6">
+            <button id="toggleRatesButton" class="text-sm text-blue-600 hover:text-blue-800 focus:outline-none mb-2 font-medium flex items-center">
+                <span id="toggleRatesText">Show Applicable Rates</span> 
+                <svg id="ratesArrow" class="ml-1 w-4 h-4 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            <div id="ratesSection" class="rates-content hidden p-4 bg-slate-50 rounded-lg border border-slate-200 text-sm text-slate-600">
+                <h2 class="text-base font-semibold text-slate-700 mb-2">Applicable Rates:</h2>
+                <p>DeMinimis Rate: <span class="font-medium text-slate-800">64.9%</span></p>
+                <p>FUSF Rate (applied to DeMinimis Amount): <span class="font-medium text-slate-800">36.6%</span></p>
+                <p>FCC Fee Rate (applied to DeMinimis Amount): <span class="font-medium text-slate-800">0.00542</span></p>
+                <p>E911 Fee per Location: <span class="font-medium text-slate-800">$1.50</span></p>
+            </div>
+        </div>
+
+        <div id="taxableAmountsContainer" class="mb-6">
+            <h2 class="text-xl font-semibold text-slate-700 mb-3">Taxable Amounts & Billable Totals</h2>
+            <div id="taxableAmountsSection" class="space-y-3">
+            </div>
+            <button id="addRowButton" class="mt-3 text-sm bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 transition duration-150 ease-in-out">
+                Add Taxable Amount Row
+            </button>
+        </div>
+
+
+        <div class="mb-6 p-4 bg-sky-50 rounded-lg border border-sky-200">
+            <h2 class="text-xl font-semibold text-slate-700 mb-3">E911 Locations</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+                <label for="e911Locations" class="block text-sm font-medium text-slate-700 sm:col-span-1">Number of Locations:</label>
+                <input type="number" id="e911Locations" placeholder="e.g., 5" class="input-focus w-full px-3 py-2.5 text-slate-700 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150 ease-in-out sm:col-span-1" step="1" min="0">
+                <div class="sm:col-span-1 bg-slate-100 p-2.5 rounded-md text-right output-field flex items-center justify-end">
+                    <span class="text-sm text-slate-600 mr-1">E911 Total:</span>
+                    <span id="e911TotalCost" class="font-bold text-lg text-sky-600">$0.00</span>
+                </div>
+            </div>
+        </div>
+        
+        <button id="calculateAllButton" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-150 ease-in-out mb-4 text-lg">
+            Calculate All
+        </button>
+
+        <div class="mt-6 pt-4 border-t border-slate-300 space-y-3"> 
+            <div class="flex justify-end items-center p-3 bg-slate-100 rounded-lg"> 
+                <span class="text-md font-medium text-slate-600 mr-3">Grand Total Taxable Amount:</span>
+                <span id="grandTotalTaxableAmount" class="font-semibold text-xl text-slate-800">$0.00</span>
+            </div>
+             <div class="flex justify-end items-center p-3 bg-slate-100 rounded-lg"> 
+                <span class="text-md font-medium text-slate-600 mr-3">Total Tax & Fees:</span>
+                <span id="totalTaxAndFees" class="font-semibold text-xl text-red-600">$0.00</span>
+            </div>
+            <div class="flex justify-end items-center p-4 bg-indigo-50 rounded-lg">
+                <span class="text-lg font-semibold text-slate-700 mr-3">Grand Total Billable Amount:</span>
+                <span id="grandTotalBillableAmount" class="font-bold text-2xl text-indigo-600">$0.00</span>
+            </div>
+        </div>
+         <div id="errorMessage" class="mt-4 p-3 bg-red-100 text-red-700 rounded-md text-sm text-center" style="display:none;"></div>
+    </div>
+
+    <script>
+        const RATES = {
+            deMinimis: 0.649,
+            fusf: 0.366,
+            fccFee: 0.00542,
+            e911PerLocation: 1.50
+        };
+        const INITIAL_NUM_TAXABLE_INPUTS = 1; 
+        const MAX_TAXABLE_INPUTS = 10; 
+        let currentTaxableInputCount = 0;
+
+        const taxableAmountsSection = document.getElementById('taxableAmountsSection');
+        const addRowButton = document.getElementById('addRowButton');
+        const e911LocationsInput = document.getElementById('e911Locations');
+        const e911TotalCostEl = document.getElementById('e911TotalCost');
+        const calculateAllButton = document.getElementById('calculateAllButton');
+        const grandTotalTaxableAmountEl = document.getElementById('grandTotalTaxableAmount'); 
+        const totalTaxAndFeesEl = document.getElementById('totalTaxAndFees'); 
+        const grandTotalBillableAmountEl = document.getElementById('grandTotalBillableAmount');
+        const errorMessageEl = document.getElementById('errorMessage');
+        const toggleRatesButton = document.getElementById('toggleRatesButton');
+        const ratesSection = document.getElementById('ratesSection');
+        const toggleRatesText = document.getElementById('toggleRatesText');
+        const ratesArrow = document.getElementById('ratesArrow');
+
+        function createTaxableRow(index) {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = `taxable-row grid grid-cols-1 sm:grid-cols-3 gap-4 items-center border-b border-slate-200 py-2.5`;
+            rowDiv.id = `taxableRow_${index}`;
+            
+            const label = document.createElement('label');
+            label.htmlFor = `taxableAmount_${index}`;
+            label.className = 'block text-sm font-medium text-slate-700 sm:col-span-1';
+            label.textContent = `Taxable Amount ${index} ($):`;
+            
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.id = `taxableAmount_${index}`;
+            input.placeholder = '0.00';
+            input.className = 'input-focus w-full px-3 py-2.5 text-slate-700 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150 ease-in-out sm:col-span-1';
+            input.step = '0.01';
+            input.min = '0';
+
+            const outputDiv = document.createElement('div');
+            outputDiv.className = 'sm:col-span-1 bg-slate-100 p-2.5 rounded-md text-right output-field flex items-center justify-end';
+            
+            const outputLabel = document.createElement('span');
+            outputLabel.className = 'text-sm text-slate-600 mr-1';
+            outputLabel.textContent = 'Billable:';
+
+            const outputSpan = document.createElement('span');
+            outputSpan.id = `totalBillable_${index}`;
+            outputSpan.className = 'font-bold text-lg text-emerald-600';
+            outputSpan.textContent = '$0.00';
+
+            outputDiv.appendChild(outputLabel);
+            outputDiv.appendChild(outputSpan);
+            
+            rowDiv.appendChild(label);
+            rowDiv.appendChild(input);
+            rowDiv.appendChild(outputDiv);
+            taxableAmountsSection.appendChild(rowDiv);
+            currentTaxableInputCount++;
+            updateAddRowButtonState();
+        }
+
+        function generateInitialTaxableInputRows() {
+            for (let i = 1; i <= INITIAL_NUM_TAXABLE_INPUTS; i++) {
+                createTaxableRow(i);
+            }
+        }
+        generateInitialTaxableInputRows(); 
+
+        function updateAddRowButtonState() {
+            if (currentTaxableInputCount >= MAX_TAXABLE_INPUTS) {
+                addRowButton.disabled = true;
+                addRowButton.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                addRowButton.disabled = false;
+                addRowButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        addRowButton.addEventListener('click', () => {
+            if (currentTaxableInputCount < MAX_TAXABLE_INPUTS) {
+                createTaxableRow(currentTaxableInputCount + 1);
+            }
+        });
+
+        toggleRatesButton.addEventListener('click', () => {
+            const isHidden = ratesSection.classList.toggle('hidden');
+            if (isHidden) {
+                toggleRatesText.textContent = 'Show Applicable Rates';
+                ratesArrow.classList.remove('rotate-180');
+            } else {
+                toggleRatesText.textContent = 'Hide Applicable Rates';
+                ratesArrow.classList.add('rotate-180');
+            }
+        });
+
+        function displayError(message) {
+            errorMessageEl.textContent = message;
+            errorMessageEl.style.display = 'block';
+        }
+        function clearError() {
+            errorMessageEl.textContent = '';
+            errorMessageEl.style.display = 'none';
+        }
+
+        function calculateAllFees() {
+            clearError();
+            let overallGrandTotalBillable = 0; 
+            let overallGrandTotalTaxable = 0; 
+            let allInputsValid = true;
+
+            const activeRows = document.querySelectorAll('.taxable-row'); 
+
+            activeRows.forEach(rowEl => {
+                const taxableInputEl = rowEl.querySelector('input[type="number"]');
+                const totalBillableEl = rowEl.querySelector('span[id^="totalBillable_"]');
+
+                if (!taxableInputEl || !totalBillableEl) return; 
+
+                const taxableAmountStr = taxableInputEl.value;
+                const rowIndex = taxableInputEl.id.split('_')[1]; 
+                
+                if (taxableAmountStr.trim() === '') {
+                    rowEl.classList.add('hidden-row'); 
+                    totalBillableEl.textContent = '$0.00'; 
+                } else {
+                    rowEl.classList.remove('hidden-row'); 
+                    let taxableAmount = parseFloat(taxableAmountStr);
+
+                    if (isNaN(taxableAmount) || taxableAmount < 0) {
+                        displayError(`Invalid input for Taxable Amount ${rowIndex}. Please use positive numbers.`);
+                        taxableInputEl.focus();
+                        allInputsValid = false;
+                        totalBillableEl.textContent = '$0.00'; 
+                    } else {
+                        overallGrandTotalTaxable += taxableAmount; 
+
+                        const deMinimisAmount = taxableAmount * RATES.deMinimis;
+                        const fusfAmount = deMinimisAmount * RATES.fusf;
+                        const fccAmount = deMinimisAmount * RATES.fccFee;
+                        const totalFeesForThisInput = fusfAmount + fccAmount; 
+                        const totalBillableForThisInput = taxableAmount + totalFeesForThisInput;
+                        
+                        totalBillableEl.textContent = `$${totalBillableForThisInput.toFixed(2)}`;
+                        overallGrandTotalBillable += totalBillableForThisInput;
+                    }
+                }
+            });
+
+            const e911LocationsStr = e911LocationsInput.value;
+            let e911Locations = 0;
+            let e911Cost = 0;
+
+            if (e911LocationsStr.trim() !== '') {
+                e911Locations = parseInt(e911LocationsStr, 10);
+                if (isNaN(e911Locations) || e911Locations < 0) {
+                    displayError('Invalid input for E911 Locations. Please use a positive whole number.');
+                    e911LocationsInput.focus();
+                    allInputsValid = false; 
+                    e911TotalCostEl.textContent = '$0.00';
+                } else {
+                    e911Cost = e911Locations * RATES.e911PerLocation;
+                    e911TotalCostEl.textContent = `$${e911Cost.toFixed(2)}`;
+                    overallGrandTotalBillable += e911Cost; 
+                }
+            } else {
+                 e911TotalCostEl.textContent = '$0.00'; 
+            }
+            
+            const totalCalculatedTaxAndFees = overallGrandTotalBillable - overallGrandTotalTaxable;
+
+            if (allInputsValid || overallGrandTotalBillable > 0 || overallGrandTotalTaxable > 0) {
+                grandTotalTaxableAmountEl.textContent = `$${overallGrandTotalTaxable.toFixed(2)}`;
+                totalTaxAndFeesEl.textContent = `$${totalCalculatedTaxAndFees.toFixed(2)}`;
+                grandTotalBillableAmountEl.textContent = `$${overallGrandTotalBillable.toFixed(2)}`;
+            } else if (!allInputsValid && overallGrandTotalBillable === 0 && overallGrandTotalTaxable === 0) { 
+                grandTotalTaxableAmountEl.textContent = '$0.00';
+                totalTaxAndFeesEl.textContent = '$0.00';
+                grandTotalBillableAmountEl.textContent = '$0.00';
+            }
+        }
+
+        calculateAllButton.addEventListener('click', calculateAllFees);
+
+    </script>
 </body>
 </html>
