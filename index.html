@@ -3,693 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FiberCom Cost Savings Calculator</title>
+    <title>FUSF/FCC & E911 Tax Calculator</title> 
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #696969;
-            color: #333;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
+            font-family: 'Inter', sans-serif;
         }
-        .container {
-            max-width: 800px;
-            width: 100%;
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-            overflow: hidden;
+        .input-focus:focus {
+            border-color: #2563eb; 
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); 
         }
-        h1, h2, h3 {
-            color: #1a253c;
-            border-bottom: 2px solid #eef2f5;
-            padding-bottom: 10px;
-            margin-top: 0;
+        .output-field {
+            min-height: 42px; 
         }
-        h3 {
-             margin-top: 25px;
-             border-bottom-width: 1px;
+        .hidden-row {
+            display: none !important; 
         }
-        .form-group, .hub-group {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #e0e6ec;
-            border-radius: 8px;
-            background-color: #fcfdff;
-        }
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 1.1em;
-        }
-        input[type="number"], select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 1em;
-        }
-        .radio-group label, .hub-group button {
-            display: block;
-            font-weight: normal;
-            background: #f8f9fa;
-            padding: 10px 15px;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            text-align: left;
-            width: 100%;
-            font-size: 1em;
-        }
-        .radio-group label:has(input:checked) {
-            background-color: #e6f4ff;
-            border-color: #007bff;
-        }
-        .help-note {
-            font-size: 0.85em;
-            color: #555;
-            margin-top: 5px;
-            display: block;
-        }
-        .wizard-step { display: none; }
-        .wizard-step.active-step { display: block; }
-
-        .navigation-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-        }
-        .nav-btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 6px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .prev-btn { background-color: #6c757d; color: white; }
-        .next-btn, .hub-group button { background-color: #007bff; color: white; }
-        .hub-group button.secondary { background-color: #28a745; }
-
-        #resultsSection { text-align: center; }
-        .result-item .label { font-weight: 600; font-size: 1.1em; color: #1a253c; }
-        .result-item .value { font-size: 2em; font-weight: 700; color: #007bff; }
-        .result-item .value.savings { color: #28a745; }
-        .result-item .value.negative-savings { color: #dc3545; }
-        .hidden { display: none; }
-
-        /* Breakdown Styles */
-        #quoteBreakdown {
-            text-align: left;
-            margin-top: 20px;
-            background-color: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 20px;
-        }
-        #quoteBreakdown h4 {
-            color: #007bff;
-            margin-top: 0;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #dee2e6;
-        }
-        #quoteBreakdown ul {
-            list-style-type: none;
-            padding-left: 0;
-            margin-bottom: 20px;
-        }
-        #quoteBreakdown li {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            border-bottom: 1px dotted #ccc;
-        }
-        #quoteBreakdown li:last-child {
-            border-bottom: none;
-        }
-        #quoteBreakdown .item-label {
-            font-weight: 500;
-        }
-        #quoteBreakdown .item-cost {
-            font-weight: 600;
-        }
-        #quoteBreakdown .item-note {
-             font-size: 0.9em;
-             color: #6c757d;
-             flex-basis: 100%;
+        .rates-content.hidden {
+            display: none;
         }
     </style>
 </head>
-<body>
+<body class="bg-slate-100 py-6 px-4">
 
-<div class="container">
-    <h1>FiberCom Cost Savings Calculator 📈</h1>
-    <div id="calculator-wizard">
+    <div class="container mx-auto max-w-3xl bg-white p-6 sm:p-8 rounded-xl shadow-2xl">
+        <header class="mb-6 text-center">
+            <h1 class="text-3xl font-bold text-slate-700">FUSF/FCC & E911 Tax Calculator</h1> 
+        </header>
 
-        <div class="wizard-step active-step" data-step="1">
-            <h2>Step 1: Your Current Bill</h2>
-            <div class="form-group">
-                <label for="totalMonthlyBill">What is your Total Current Monthly Phone Bill?</label>
-                <input type="number" id="totalMonthlyBill" placeholder="e.g., 1500" min="0">
-            </div>
-            <div class="navigation-buttons">
-                <span></span>
-                <button class="nav-btn next-btn" onclick="navigate('next', 1)">Next &rarr;</button>
+        <div class="mb-6">
+            <button id="toggleRatesButton" class="text-sm text-blue-600 hover:text-blue-800 focus:outline-none mb-2 font-medium flex items-center">
+                <span id="toggleRatesText">Show Applicable Rates</span> 
+                <svg id="ratesArrow" class="ml-1 w-4 h-4 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            <div id="ratesSection" class="rates-content hidden p-4 bg-slate-50 rounded-lg border border-slate-200 text-sm text-slate-600">
+                <h2 class="text-base font-semibold text-slate-700 mb-2">Applicable Rates:</h2>
+                <p>DeMinimis Rate: <span class="font-medium text-slate-800">64.9%</span></p>
+                <p>FUSF Rate (applied to DeMinimis Amount): <span class="font-medium text-slate-800">36.6%</span></p>
+                <p>FCC Fee Rate (applied to DeMinimis Amount): <span class="font-medium text-slate-800">0.00542</span></p>
+                <p>E911 Fee per Location: <span class="font-medium text-slate-800">$1.50</span></p>
             </div>
         </div>
 
-        <div class="wizard-step" data-step="2">
-            <h2>Step 2: Voice Services</h2>
-            <div class="form-group">
-                <label>Do you want to replace your analog lines?</label>
-                <div class="radio-group">
-                    <label><input type="radio" name="replaceAnalog" value="yes"> Yes</label>
-                    <label><input type="radio" name="replaceAnalog" value="no" checked> No</label>
+        <div id="taxableAmountsContainer" class="mb-6">
+            <h2 class="text-xl font-semibold text-slate-700 mb-3">Taxable Amounts & Billable Totals</h2>
+            <div id="taxableAmountsSection" class="space-y-3">
+            </div>
+            <button id="addRowButton" class="mt-3 text-sm bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 transition duration-150 ease-in-out">
+                Add Taxable Amount Row
+            </button>
+        </div>
+
+
+        <div class="mb-6 p-4 bg-sky-50 rounded-lg border border-sky-200">
+            <h2 class="text-xl font-semibold text-slate-700 mb-3">E911 Locations</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+                <label for="e911Locations" class="block text-sm font-medium text-slate-700 sm:col-span-1">Number of Locations:</label>
+                <input type="number" id="e911Locations" placeholder="e.g., 5" class="input-focus w-full px-3 py-2.5 text-slate-700 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150 ease-in-out sm:col-span-1" step="1" min="0">
+                <div class="sm:col-span-1 bg-slate-100 p-2.5 rounded-md text-right output-field flex items-center justify-end">
+                    <span class="text-sm text-slate-600 mr-1">E911 Total:</span>
+                    <span id="e911TotalCost" class="font-bold text-lg text-sky-600">$0.00</span>
                 </div>
             </div>
-            <div class="navigation-buttons">
-                <button class="nav-btn prev-btn" onclick="navigate('prev', 2)">&larr; Previous</button>
-                <button class="nav-btn next-btn" onclick="navigate('next', 2)">Next &rarr;</button>
+        </div>
+        
+        <button id="calculateAllButton" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-150 ease-in-out mb-4 text-lg">
+            Calculate All
+        </button>
+
+        <div class="mt-6 pt-4 border-t border-slate-300 space-y-3"> 
+            <div class="flex justify-end items-center p-3 bg-slate-100 rounded-lg"> 
+                <span class="text-md font-medium text-slate-600 mr-3">Grand Total Taxable Amount:</span>
+                <span id="grandTotalTaxableAmount" class="font-semibold text-xl text-slate-800">$0.00</span>
+            </div>
+             <div class="flex justify-end items-center p-3 bg-slate-100 rounded-lg"> 
+                <span class="text-md font-medium text-slate-600 mr-3">Total Tax & Fees:</span>
+                <span id="totalTaxAndFees" class="font-semibold text-xl text-red-600">$0.00</span>
+            </div>
+            <div class="flex justify-end items-center p-4 bg-indigo-50 rounded-lg">
+                <span class="text-lg font-semibold text-slate-700 mr-3">Grand Total Billable Amount:</span>
+                <span id="grandTotalBillableAmount" class="font-bold text-2xl text-indigo-600">$0.00</span>
             </div>
         </div>
-
-        <div class="wizard-step" data-step="3">
-            <h2>Step 3: Equipment Strategy</h2>
-            <div class="form-group">
-                <label>Do you want to keep your legacy Analog phones/equipment?</label>
-                <div class="radio-group">
-                    <label><input type="radio" name="keepLegacy" value="yes" checked> Yes</label>
-                    <label><input type="radio" name="keepLegacy" value="no"> No</label>
-                </div>
-            </div>
-            <div class="navigation-buttons">
-                <button class="nav-btn prev-btn" onclick="navigate('prev', 3)">&larr; Previous</button>
-                <button class="nav-btn next-btn" onclick="navigate('next', 3)">Next &rarr;</button>
-            </div>
-        </div>
-
-        <div class="wizard-step" data-step="4">
-            <h2>Step 4: Analog Line Details</h2>
-            <div class="form-group">
-                <label for="totalAnalogLines">How many total lines do you need?</label>
-                <input type="number" id="totalAnalogLines" min="0" value="0">
-                <label for="faxLines" style="margin-top:15px;">How many of these will be for a fax machine?</label>
-                <input type="number" id="faxLines" min="0" value="0">
-            </div>
-            <div class="navigation-buttons">
-                <button class="nav-btn prev-btn" onclick="navigate('prev', 4)">&larr; Previous</button>
-                <button class="nav-btn next-btn" onclick="navigate('next', 4)">Continue &rarr;</button>
-            </div>
-        </div>
-
-        <div class="wizard-step" data-step="5">
-             <h2>Step 5: Modern PBX Integration</h2>
-            <div class="form-group">
-                <label>Do you need SIP Trunking for an Existing PBX?</label>
-                 <div class="radio-group">
-                    <label><input type="radio" name="needSip" value="yes"> Yes</label>
-                    <label><input type="radio" name="needSip" value="no" checked> No</label>
-                </div>
-            </div>
-             <div class="navigation-buttons">
-                <button class="nav-btn prev-btn" onclick="navigate('prev', 5)">&larr; Previous</button>
-                <button class="nav-btn next-btn" onclick="navigate('next', 5)">Next &rarr;</button>
-            </div>
-        </div>
-
-        <div class="wizard-step" data-step="6">
-            <h2>Step 6: SIP Trunking Details</h2>
-            <div class="form-group">
-                <label for="sipChannels">How many concurrent Channels (call paths) do you need?</label>
-                <input type="number" id="sipChannels" min="0" value="0">
-                <label style="margin-top:15px;">Do you need additional SIP Trunks?</label>
-                 <span class="help-note">A trunk is a connection capable of handling multiple Concurrent Channels.</span>
-                 <div class="radio-group">
-                    <label><input type="radio" name="additionalTrunks" value="yes"> Yes</label>
-                    <label><input type="radio" name="additionalTrunks" value="no" checked> No</label>
-                </div>
-                <div id="additionalTrunksSection" class="hidden" style="margin-top:15px;">
-                     <label for="numAdditionalTrunks">How many additional trunks?</label>
-                     <input type="number" id="numAdditionalTrunks" min="0" value="0">
-                </div>
-            </div>
-             <div class="navigation-buttons">
-                <button class="nav-btn prev-btn" onclick="navigate('prev', 6)">&larr; Previous</button>
-                <button class="nav-btn next-btn" onclick="navigate('next', 6)">Continue &rarr;</button>
-            </div>
-        </div>
-
-        <div class="wizard-step" data-step="7">
-            <h2>Step 7: Hosted Platform</h2>
-            <div class="form-group">
-                <label>Which platform do you need?</label>
-                <div class="radio-group">
-                    <label><input type="radio" name="ucOrTeams" value="uc" checked> Standard/Advanced UC Users</label>
-                    <label><input type="radio" name="ucOrTeams" value="teams"> Microsoft Teams Direct Routing</label>
-                </div>
-            </div>
-            <div class="navigation-buttons">
-                <button class="nav-btn prev-btn" onclick="navigate('prev', 7)">&larr; Previous</button>
-                <button class="nav-btn next-btn" onclick="navigate('next', 7)">Next &rarr;</button>
-            </div>
-        </div>
-
-        <div class="wizard-step" data-step="8">
-            <h2>Step 8: Teams Users</h2>
-             <div class="form-group">
-                <label for="teamsUsers">How many licensed Microsoft Teams users need calling?</label>
-                <input type="number" id="teamsUsers" min="0" value="0">
-            </div>
-             <div class="navigation-buttons">
-                <button class="nav-btn prev-btn" onclick="navigate('prev', 8)">&larr; Previous</button>
-                <button class="nav-btn next-btn" onclick="navigate('next', 8)">Continue &rarr;</button>
-            </div>
-        </div>
-
-        <div class="wizard-step" data-step="9">
-             <h2>Step 9: Hosted UC Users</h2>
-             <div class="form-group">
-                <label for="standardUsers"><b>Standard</b> UC Users?</label>
-                <span class="help-note">Includes Voicemail, Auto Attendant, etc.</span>
-                <input type="number" id="standardUsers" min="0" value="0">
-                <label for="advancedUsers" style="margin-top:15px;"><b>Advanced</b> UC Users?</label>
-                <span class="help-note">Adds Mobile App, UC Desktop.</span>
-                <input type="number" id="advancedUsers" min="0" value="0">
-                <label for="contactCenterUsers" style="margin-top:15px;"><b>Contact Center</b> Agents?</label>
-                <span class="help-note">Adds Hold Queues and Advanced Routing.</span>
-                <input type="number" id="contactCenterUsers" min="0" value="0">
-            </div>
-             <div class="navigation-buttons">
-                <button class="nav-btn prev-btn" onclick="navigate('prev', 9)">&larr; Previous</button>
-                <button class="nav-btn next-btn" onclick="navigate('next', 9)">Next &rarr;</button>
-            </div>
-        </div>
-
-        <div class="wizard-step" data-step="10">
-            <h2>Step 10: Phone Hardware</h2>
-            <div class="form-group">
-                <label for="basicHandsets">Basic Handsets</label>
-                <input type="number" id="basicHandsets" min="0" value="0">
-                <label for="executiveHandsets" style="margin-top:15px;">Executive Handsets</label>
-                <input type="number" id="executiveHandsets" min="0" value="0">
-                <label for="conferencePhones" style="margin-top:15px;">Conference Phones</label>
-                <input type="number" id="conferencePhones" min="0" value="0">
-                <label for="dectPhones" style="margin-top:15px;">Cordless/DECT Phones</label>
-                <input type="number" id="dectPhones" min="0" value="0">
-            </div>
-             <div class="navigation-buttons">
-                <button class="nav-btn prev-btn" onclick="navigate('prev', 10)">&larr; Previous</button>
-                <button class="nav-btn next-btn" onclick="navigate('next', 10)">Continue &rarr;</button>
-            </div>
-        </div>
-
-        <div class="wizard-step" data-step="11">
-            <h2>Step 11: Add More Services?</h2>
-            <div class="hub-group">
-                <label>Do you need to add anything else to the estimate?</label>
-                <button id="hubBtnAnalog" onclick="jumpToStep(3)">Add/Edit Analog Line Replacement</button>
-                <button id="hubBtnSip" onclick="jumpToStep(5)">Add/Edit SIP Trunking</button>
-                <button id="hubBtnUc" onclick="jumpToStep(7)">Add/Edit UC or Teams Users</button>
-                <hr style="margin: 20px 0;">
-                <button class="secondary" onclick="jumpToStep(12)">No, Proceed to Internet Options</button>
-            </div>
-            <div class="navigation-buttons">
-                <button class="nav-btn prev-btn" onclick="navigate('prev', 11)">&larr; Previous</button>
-                <span></span>
-            </div>
-        </div>
-
-        <div class="wizard-step" data-step="12">
-             <h2>Step 12: Internet Services</h2>
-             <div class="form-group">
-                <label>Would you like to estimate internet costs?</label>
-                 <div class="radio-group">
-                    <label><input type="radio" name="estimateInternet" value="yes"> Yes</label>
-                    <label><input type="radio" name="estimateInternet" value="no" checked> No</label>
-                </div>
-            </div>
-             <div class="navigation-buttons">
-                <button class="nav-btn prev-btn" onclick="navigate('prev', 12)">&larr; Previous</button>
-                <button class="nav-btn next-btn" onclick="navigate('next', 12)">Next &rarr;</button>
-            </div>
-        </div>
-
-        <div class="wizard-step" data-step="13">
-            <h2>Step 13: Internet Circuit Type</h2>
-            <div class="form-group">
-                <label>Do you need a Dedicated Circuit or a Shared Plan?</label>
-                <select id="dedicatedCircuit">
-                    <option value="no">Shared Plan</option>
-                    <option value="yes">Dedicated Circuit</option>
-                    <option value="idk">I don't know (use Shared)</option>
-                </select>
-                <div id="dedicatedOptions" class="hidden" style="margin-top: 20px;">
-                    <label for="dedicatedBandwidth">Dedicated Bandwidth</label>
-                    <select id="dedicatedBandwidth">
-                         <option value="0">-- Select --</option><option value="150">25mbps</option><option value="200">50mbps</option><option value="350">100mbps</option><option value="450">150mbps</option><option value="550">200mbps</option><option value="600">250mbps</option><option value="700">300mbps</option><option value="775">400mbps</option><option value="850">500mbps</option><option value="950">600mbps</option><option value="1050">700mbps</option><option value="1150">800mbps</option><option value="1250">900mbps</option><option value="1300">1GB</option><option value="2000">2GB</option><option value="2250">3GB</option><option value="2600">4GB</option><option value="2750">5GB</option><option value="2940">6GB</option><option value="3360">7GB</option><option value="3760">8GB</option><option value="4140">9GB</option><option value="4500">10GB</option>
-                    </select>
-                </div>
-                <div id="sharedOptions" style="margin-top: 20px;">
-                    <label for="sharedBandwidth">Shared Plan</label>
-                    <select id="sharedBandwidth">
-                        <option value="0">-- Select --</option><option value="139">100MB</option><option value="199">1GB</option>
-                    </select>
-                </div>
-            </div>
-             <div class="navigation-buttons">
-                <button class="nav-btn prev-btn" onclick="navigate('prev', 13)">&larr; Previous</button>
-                <button class="nav-btn next-btn" onclick="navigate('next', 13)">Next &rarr;</button>
-            </div>
-        </div>
-
-        <div class="wizard-step" data-step="14">
-             <h2>Step 14: Public IPs</h2>
-             <div class="form-group">
-                 <label>Do you need Public IPs?</label>
-                 <div class="radio-group">
-                    <label><input type="radio" name="needPublicIPs" value="yes"> Yes</label>
-                    <label><input type="radio" name="needPublicIPs" value="no" checked> No</label>
-                </div>
-                 <div id="publicIpOptions" class="hidden" style="margin-top: 20px;">
-                     <label for="ipBlock">IP Block Size</label>
-                     <select id="ipBlock">
-                         <option value="0">-- Select --</option><option value="8">/30 (2 usable)</option><option value="16">/29 (6 usable)</option><option value="32">/28 (14 usable)</option><option value="64">/27 (30 usable)</option><option value="128">/26 (62 usable)</option>
-                     </select>
-                </div>
-            </div>
-             <div class="navigation-buttons">
-                <button class="nav-btn prev-btn" onclick="navigate('prev', 14)">&larr; Previous</button>
-                <button class="nav-btn next-btn" onclick="navigate('next', 14)">View Results &rarr;</button>
-            </div>
-        </div>
-
-        <div class="wizard-step" data-step="15">
-            <div id="resultsSection">
-                 <h2>Your Estimated Quote 📊</h2>
-                 <div class="result-item"><span class="label">New Estimated Monthly Cost</span><span class="value" id="newMonthlyCost">$0.00</span></div>
-                 <div class="result-item"><span class="label">Total One-Time Charges</span><span class="value" id="oneTimeCharges">$0.00</span></div>
-                 <div class="result-item"><span class="label">Estimated Monthly Savings</span><span class="value savings" id="monthlySavings">$0.00</span></div>
-                 <div class="result-item"><span class="label">Estimated Yearly Savings</span><span class="value savings" id="yearlySavings">$0.00</span></div>
-            </div>
-
-            <h3>Quote Breakdown</h3>
-            <div id="quoteBreakdown">
-                </div>
-
-            <div class="navigation-buttons">
-                <button class="nav-btn prev-btn" onclick="navigate('prev', 15)">&larr; Back to Inputs</button>
-                <span></span>
-            </div>
-        </div>
+         <div id="errorMessage" class="mt-4 p-3 bg-red-100 text-red-700 rounded-md text-sm text-center" style="display:none;"></div>
     </div>
-</div>
 
-<script>
-    let currentStep = 1;
-    const formData = {};
-    const stepHistory = [1];
+    <script>
+        const RATES = {
+            deMinimis: 0.649,
+            fusf: 0.366,
+            fccFee: 0.00542,
+            e911PerLocation: 1.50
+        };
+        const INITIAL_NUM_TAXABLE_INPUTS = 1; 
+        const MAX_TAXABLE_INPUTS = 10; 
+        let currentTaxableInputCount = 0;
 
-    const getVal = (id) => document.getElementById(id).value;
-    const getRadio = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value;
-    const formatCurrency = (num) => num.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        const taxableAmountsSection = document.getElementById('taxableAmountsSection');
+        const addRowButton = document.getElementById('addRowButton');
+        const e911LocationsInput = document.getElementById('e911Locations');
+        const e911TotalCostEl = document.getElementById('e911TotalCost');
+        const calculateAllButton = document.getElementById('calculateAllButton');
+        const grandTotalTaxableAmountEl = document.getElementById('grandTotalTaxableAmount'); 
+        const totalTaxAndFeesEl = document.getElementById('totalTaxAndFees'); 
+        const grandTotalBillableAmountEl = document.getElementById('grandTotalBillableAmount');
+        const errorMessageEl = document.getElementById('errorMessage');
+        const toggleRatesButton = document.getElementById('toggleRatesButton');
+        const ratesSection = document.getElementById('ratesSection');
+        const toggleRatesText = document.getElementById('toggleRatesText');
+        const ratesArrow = document.getElementById('ratesArrow');
 
-    function showStep(stepNumber) {
-        document.querySelectorAll('.wizard-step').forEach(step => step.classList.remove('active-step'));
-        document.querySelector(`.wizard-step[data-step="${stepNumber}"]`).classList.add('active-step');
-        currentStep = stepNumber;
-
-        if (stepNumber === 11) {
-            document.getElementById('hubBtnAnalog').textContent = formData.analogPathVisited ? 'Edit Analog Line Replacement' : 'Add Analog Line Replacement';
-            document.getElementById('hubBtnSip').textContent = formData.sipPathVisited ? 'Edit SIP Trunking' : 'Add SIP Trunking';
-            document.getElementById('hubBtnUc').textContent = formData.ucPathVisited ? 'Edit UC or Teams Users' : 'Add UC or Teams Users';
-        }
-    }
-
-    function saveData(step) {
-        switch(step) {
-            case 1: formData.totalMonthlyBill = parseFloat(getVal('totalMonthlyBill')) || 0; break;
-            case 2: formData.replaceAnalog = getRadio('replaceAnalog'); break;
-            case 3: formData.keepLegacy = getRadio('keepLegacy'); break;
-            case 4:
-                formData.totalAnalogLines = parseInt(getVal('totalAnalogLines')) || 0;
-                formData.faxLines = parseInt(getVal('faxLines')) || 0;
-                formData.analogPathVisited = true;
-                break;
-            case 5: formData.needSip = getRadio('needSip'); break;
-            case 6:
-                formData.sipChannels = parseInt(getVal('sipChannels')) || 0;
-                formData.additionalTrunks = getRadio('additionalTrunks');
-                formData.numAdditionalTrunks = parseInt(getVal('numAdditionalTrunks')) || 0;
-                formData.sipPathVisited = true;
-                break;
-            case 7: formData.ucOrTeams = getRadio('ucOrTeams'); break;
-            case 8:
-                formData.teamsUsers = parseInt(getVal('teamsUsers')) || 0;
-                formData.ucPathVisited = true;
-                break;
-            case 9:
-                formData.standardUsers = parseInt(getVal('standardUsers')) || 0;
-                formData.advancedUsers = parseInt(getVal('advancedUsers')) || 0;
-                formData.contactCenterUsers = parseInt(getVal('contactCenterUsers')) || 0;
-                break;
-            case 10:
-                formData.basicHandsets = parseInt(getVal('basicHandsets')) || 0;
-                formData.executiveHandsets = parseInt(getVal('executiveHandsets')) || 0;
-                formData.conferencePhones = parseInt(getVal('conferencePhones')) || 0;
-                formData.dectPhones = parseInt(getVal('dectPhones')) || 0;
-                formData.ucPathVisited = true;
-                break;
-            case 12: formData.estimateInternet = getRadio('estimateInternet'); break;
-            case 13:
-                formData.dedicatedCircuit = getVal('dedicatedCircuit');
-                formData.dedicatedBandwidth = getVal('dedicatedBandwidth');
-                formData.sharedBandwidth = getVal('sharedBandwidth');
-                break;
-            case 14:
-                formData.needPublicIPs = getRadio('needPublicIPs');
-                formData.ipBlock = getVal('ipBlock');
-                break;
-        }
-    }
-
-    function jumpToStep(step) {
-        stepHistory.push(step);
-        showStep(step);
-    }
-
-    function navigate(direction, fromStep) {
-        saveData(fromStep);
-        let nextStep = 0;
-
-        if (direction === 'prev') {
-            stepHistory.pop();
-            nextStep = stepHistory[stepHistory.length - 1];
-        } else {
-            switch (fromStep) {
-                case 1: nextStep = 2; break;
-                case 2: nextStep = (formData.replaceAnalog === 'yes') ? 3 : 5; break;
-                case 3: nextStep = (formData.keepLegacy === 'yes') ? 4 : 7; break;
-                case 4: nextStep = 11; break;
-                case 5: nextStep = (formData.needSip === 'yes') ? 6 : 7; break;
-                case 6: nextStep = 11; break;
-                case 7: nextStep = (formData.ucOrTeams === 'teams') ? 8 : 9; break;
-                case 8: nextStep = 11; break;
-                case 9: nextStep = 10; break;
-                case 10: nextStep = 11; break;
-                case 12: nextStep = (formData.estimateInternet === 'yes') ? 13 : 15; break;
-                case 13: nextStep = 14; break;
-                case 14: nextStep = 15; break;
-                case 15: nextStep = stepHistory[stepHistory.length - 2] || 1; break;
-                default: nextStep = fromStep + 1;
-            }
-            if (fromStep !== 11) stepHistory.push(nextStep);
-        }
-
-        if (nextStep === 15) calculateCosts();
-
-        showStep(nextStep);
-    }
-
-    // --- Dynamic UI Listeners ---
-    document.querySelectorAll('input[name="additionalTrunks"]').forEach(el => el.addEventListener('change', () => {
-        document.getElementById('additionalTrunksSection').classList.toggle('hidden', getRadio('additionalTrunks') === 'no');
-    }));
-    document.getElementById('dedicatedCircuit').addEventListener('change', (event) => {
-        const selection = event.target.value;
-        document.getElementById('dedicatedOptions').classList.toggle('hidden', selection !== 'yes');
-        document.getElementById('sharedOptions').classList.toggle('hidden', selection === 'yes');
-    });
-    document.querySelectorAll('input[name="needPublicIPs"]').forEach(el => el.addEventListener('change', () => {
-        document.getElementById('publicIpOptions').classList.toggle('hidden', getRadio('needPublicIPs') === 'no');
-    }));
-
-    function calculateCosts() {
-        let monthlyCost = 0, oneTimeCost = 0, callForPricing = false;
-        let breakdownHtml = '';
-
-        // --- Sum up all configured services & build breakdown ---
-        if (formData.totalAnalogLines > 0) {
-            let sectionMonthly = formData.totalAnalogLines * 19.99;
-            let sectionOneTime = 0;
-            monthlyCost += sectionMonthly;
-
-            breakdownHtml += `<h4>Analog Line Replacement</h4><ul>`;
-            breakdownHtml += `<li><span class="item-label">${formData.totalAnalogLines} Total Analog Lines</span> <span class="item-cost">${formatCurrency(sectionMonthly)}/mo</span></li>`;
+        function createTaxableRow(index) {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = `taxable-row grid grid-cols-1 sm:grid-cols-3 gap-4 items-center border-b border-slate-200 py-2.5`;
+            rowDiv.id = `taxableRow_${index}`;
             
-            if (formData.faxLines > 1) {
-                const faxOneTime = formData.faxLines * 100;
-                sectionOneTime += faxOneTime;
-                breakdownHtml += `<li><span class="item-label">${formData.faxLines} Fax Lines Setup</span> <span class="item-cost">${formatCurrency(faxOneTime)}</span></li>`;
-            }
-
-            const nonFaxLines = formData.totalAnalogLines - formData.faxLines;
-            let ataCost = 0;
-            if (nonFaxLines >= 1 && nonFaxLines <= 2) ataCost = 45;
-            else if (nonFaxLines <= 4) ataCost = 90;
-            else if (nonFaxLines <= 8) ataCost = 135;
-            else if (nonFaxLines >= 9) callForPricing = true;
-            if (ataCost > 0) {
-                sectionOneTime += ataCost;
-                breakdownHtml += `<li><span class="item-label">${nonFaxLines} Lines ATA Hardware</span> <span class="item-cost">${formatCurrency(ataCost)}</span></li>`;
-            }
-            oneTimeCost += sectionOneTime;
-            breakdownHtml += `</ul>`;
-        }
-
-        if (formData.sipChannels > 0) {
-            const sectionMonthly = formData.sipChannels * 19.99;
-            monthlyCost += sectionMonthly;
+            const label = document.createElement('label');
+            label.htmlFor = `taxableAmount_${index}`;
+            label.className = 'block text-sm font-medium text-slate-700 sm:col-span-1';
+            label.textContent = `Taxable Amount ${index} ($):`;
             
-            const totalTrunks = formData.additionalTrunks === 'yes' ? 1 + formData.numAdditionalTrunks : 1;
-            const sectionOneTime = totalTrunks * 15;
-            oneTimeCost += sectionOneTime;
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.id = `taxableAmount_${index}`;
+            input.placeholder = '0.00';
+            input.className = 'input-focus w-full px-3 py-2.5 text-slate-700 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150 ease-in-out sm:col-span-1';
+            input.step = '0.01';
+            input.min = '0';
+
+            const outputDiv = document.createElement('div');
+            outputDiv.className = 'sm:col-span-1 bg-slate-100 p-2.5 rounded-md text-right output-field flex items-center justify-end';
             
-            if (totalTrunks > 20) callForPricing = true;
+            const outputLabel = document.createElement('span');
+            outputLabel.className = 'text-sm text-slate-600 mr-1';
+            outputLabel.textContent = 'Billable:';
+
+            const outputSpan = document.createElement('span');
+            outputSpan.id = `totalBillable_${index}`;
+            outputSpan.className = 'font-bold text-lg text-emerald-600';
+            outputSpan.textContent = '$0.00';
+
+            outputDiv.appendChild(outputLabel);
+            outputDiv.appendChild(outputSpan);
             
-            breakdownHtml += `<h4>SIP Trunking</h4><ul>`;
-            breakdownHtml += `<li><span class="item-label">${formData.sipChannels} Concurrent Channels</span> <span class="item-cost">${formatCurrency(sectionMonthly)}/mo</span></li>`;
-            breakdownHtml += `<li><span class="item-label">${totalTrunks} SIP Trunk Setup</span> <span class="item-cost">${formatCurrency(sectionOneTime)}</span></li>`;
-            breakdownHtml += `</ul>`;
-        }
-        
-        if (formData.teamsUsers > 0) {
-            const sectionMonthly = formData.teamsUsers * 8;
-            const sectionOneTime = formData.teamsUsers * 8;
-            monthlyCost += sectionMonthly;
-            oneTimeCost += sectionOneTime;
-
-            breakdownHtml += `<h4>Microsoft Teams Direct Routing</h4><ul>`;
-            breakdownHtml += `<li><span class="item-label">${formData.teamsUsers} Licensed Users</span> <span class="item-cost">${formatCurrency(sectionMonthly)}/mo</span></li>`;
-            breakdownHtml += `<li><span class="item-label">One-Time Setup</span> <span class="item-cost">${formatCurrency(sectionOneTime)}</span></li>`;
-            breakdownHtml += `</ul>`;
+            rowDiv.appendChild(label);
+            rowDiv.appendChild(input);
+            rowDiv.appendChild(outputDiv);
+            taxableAmountsSection.appendChild(rowDiv);
+            currentTaxableInputCount++;
+            updateAddRowButtonState();
         }
 
-        const hasUcUsers = formData.standardUsers > 0 || formData.advancedUsers > 0 || formData.contactCenterUsers > 0;
-        if (hasUcUsers) {
-            breakdownHtml += `<h4>Hosted UC Users</h4><ul>`;
-            if (formData.standardUsers > 0) {
-                const m = formData.standardUsers * 21;
-                const o = formData.standardUsers * 12;
-                monthlyCost += m; oneTimeCost += o;
-                breakdownHtml += `<li><span class="item-label">${formData.standardUsers} Standard Users</span> <span class="item-cost">${formatCurrency(m)}/mo</span></li>`;
-                breakdownHtml += `<li><span class="item-label" style="padding-left:15px;">↳ Setup</span> <span class="item-cost">${formatCurrency(o)}</span></li>`;
+        function generateInitialTaxableInputRows() {
+            for (let i = 1; i <= INITIAL_NUM_TAXABLE_INPUTS; i++) {
+                createTaxableRow(i);
             }
-             if (formData.advancedUsers > 0) {
-                const m = formData.advancedUsers * 29;
-                const o = formData.advancedUsers * 14;
-                monthlyCost += m; oneTimeCost += o;
-                breakdownHtml += `<li><span class="item-label">${formData.advancedUsers} Advanced Users</span> <span class="item-cost">${formatCurrency(m)}/mo</span></li>`;
-                 breakdownHtml += `<li><span class="item-label" style="padding-left:15px;">↳ Setup</span> <span class="item-cost">${formatCurrency(o)}</span></li>`;
-            }
-             if (formData.contactCenterUsers > 0) {
-                const m = formData.contactCenterUsers * 55;
-                const o = formData.contactCenterUsers * 14;
-                monthlyCost += m; oneTimeCost += o;
-                breakdownHtml += `<li><span class="item-label">${formData.contactCenterUsers} Contact Center Agents</span> <span class="item-cost">${formatCurrency(m)}/mo</span></li>`;
-                breakdownHtml += `<li><span class="item-label" style="padding-left:15px;">↳ Setup</span> <span class="item-cost">${formatCurrency(o)}</span></li>`;
-            }
-            breakdownHtml += `</ul>`;
         }
+        generateInitialTaxableInputRows(); 
 
-        const hasHardware = formData.basicHandsets > 0 || formData.executiveHandsets > 0 || formData.conferencePhones > 0 || formData.dectPhones > 0;
-        if (hasHardware) {
-             breakdownHtml += `<h4>Phone Hardware (One-Time)</h4><ul>`;
-             if(formData.basicHandsets > 0) {
-                const o = formData.basicHandsets * 85; oneTimeCost += o;
-                breakdownHtml += `<li><span class="item-label">${formData.basicHandsets} Basic Handsets</span> <span class="item-cost">${formatCurrency(o)}</span></li>`;
-             }
-             if(formData.executiveHandsets > 0) {
-                const o = formData.executiveHandsets * 135; oneTimeCost += o;
-                breakdownHtml += `<li><span class="item-label">${formData.executiveHandsets} Executive Handsets</span> <span class="item-cost">${formatCurrency(o)}</span></li>`;
-             }
-             if(formData.conferencePhones > 0) {
-                const o = formData.conferencePhones * 350; oneTimeCost += o;
-                breakdownHtml += `<li><span class="item-label">${formData.conferencePhones} Conference Phones</span> <span class="item-cost">${formatCurrency(o)}</span></li>`;
-             }
-             if(formData.dectPhones > 0) {
-                const o = 156 + (formData.dectPhones - 1) * 81; oneTimeCost += o;
-                breakdownHtml += `<li><span class="item-label">${formData.dectPhones} Cordless/DECT Phones</span> <span class="item-cost">${formatCurrency(o)}</span></li>`;
-             }
-             breakdownHtml += `</ul>`;
-        }
-
-        if (formData.estimateInternet === 'yes') {
-            breakdownHtml += `<h4>Internet Services</h4><ul>`;
-            if (formData.dedicatedCircuit === 'yes') {
-                const m = parseFloat(formData.dedicatedBandwidth) || 0;
-                monthlyCost += m;
-                const bwLabel = document.querySelector(`#dedicatedBandwidth option[value="${formData.dedicatedBandwidth}"]`)?.textContent.split(' - ')[0];
-                breakdownHtml += `<li><span class="item-label">Dedicated Circuit (${bwLabel})</span> <span class="item-cost">${formatCurrency(m)}/mo</span></li>`;
+        function updateAddRowButtonState() {
+            if (currentTaxableInputCount >= MAX_TAXABLE_INPUTS) {
+                addRowButton.disabled = true;
+                addRowButton.classList.add('opacity-50', 'cursor-not-allowed');
             } else {
-                const m = parseFloat(formData.sharedBandwidth) || 0;
-                monthlyCost += m;
-                 const bwLabel = document.querySelector(`#sharedBandwidth option[value="${formData.sharedBandwidth}"]`)?.textContent.split(' - ')[0];
-                breakdownHtml += `<li><span class="item-label">Shared Plan (${bwLabel})</span> <span class="item-cost">${formatCurrency(m)}/mo</span></li>`;
+                addRowButton.disabled = false;
+                addRowButton.classList.remove('opacity-50', 'cursor-not-allowed');
             }
-            if (formData.needPublicIPs === 'yes') {
-                const m = parseFloat(formData.ipBlock) || 0;
-                monthlyCost += m;
-                const ipLabel = document.querySelector(`#ipBlock option[value="${formData.ipBlock}"]`)?.textContent.split(' (')[0];
-                breakdownHtml += `<li><span class="item-label">Public IPs (${ipLabel})</span> <span class="item-cost">${formatCurrency(m)}/mo</span></li>`;
-            }
-            breakdownHtml += `</ul>`;
-        }
-        
-        // --- Update Display ---
-        document.getElementById('quoteBreakdown').innerHTML = breakdownHtml || '<p>No services were selected.</p>';
-
-        if (callForPricing) {
-            document.getElementById('newMonthlyCost').textContent = "Call for Pricing: 770-607-6380";
-            document.getElementById('oneTimeCharges').textContent = "Call for Pricing: 770-607-6380";
-            document.getElementById('monthlySavings').textContent = "---";
-            document.getElementById('yearlySavings').textContent = "---";
-            return;
         }
 
-        const monthlySavings = formData.totalMonthlyBill - monthlyCost;
-        const yearlySavings = monthlySavings * 12;
+        addRowButton.addEventListener('click', () => {
+            if (currentTaxableInputCount < MAX_TAXABLE_INPUTS) {
+                createTaxableRow(currentTaxableInputCount + 1);
+            }
+        });
 
-        document.getElementById('newMonthlyCost').textContent = formatCurrency(monthlyCost);
-        document.getElementById('oneTimeCharges').textContent = formatCurrency(oneTimeCost);
+        toggleRatesButton.addEventListener('click', () => {
+            const isHidden = ratesSection.classList.toggle('hidden');
+            if (isHidden) {
+                toggleRatesText.textContent = 'Show Applicable Rates';
+                ratesArrow.classList.remove('rotate-180');
+            } else {
+                toggleRatesText.textContent = 'Hide Applicable Rates';
+                ratesArrow.classList.add('rotate-180');
+            }
+        });
 
-        const monthlySavingsEl = document.getElementById('monthlySavings');
-        monthlySavingsEl.textContent = formatCurrency(monthlySavings);
-        monthlySavingsEl.classList.toggle('savings', monthlySavings >= 0);
-        monthlySavingsEl.classList.toggle('negative-savings', monthlySavings < 0);
+        function displayError(message) {
+            errorMessageEl.textContent = message;
+            errorMessageEl.style.display = 'block';
+        }
+        function clearError() {
+            errorMessageEl.textContent = '';
+            errorMessageEl.style.display = 'none';
+        }
 
-        const yearlySavingsEl = document.getElementById('yearlySavings');
-        yearlySavingsEl.textContent = formatCurrency(yearlySavings);
-        yearlySavingsEl.classList.toggle('savings', yearlySavings >= 0);
-        yearlySavingsEl.classList.toggle('negative-savings', yearlySavings < 0);
-    }
-</script>
+        function calculateAllFees() {
+            clearError();
+            let overallGrandTotalBillable = 0; 
+            let overallGrandTotalTaxable = 0; 
+            let allInputsValid = true;
+
+            const activeRows = document.querySelectorAll('.taxable-row'); 
+
+            activeRows.forEach(rowEl => {
+                const taxableInputEl = rowEl.querySelector('input[type="number"]');
+                const totalBillableEl = rowEl.querySelector('span[id^="totalBillable_"]');
+
+                if (!taxableInputEl || !totalBillableEl) return; 
+
+                const taxableAmountStr = taxableInputEl.value;
+                const rowIndex = taxableInputEl.id.split('_')[1]; 
+                
+                if (taxableAmountStr.trim() === '') {
+                    rowEl.classList.add('hidden-row'); 
+                    totalBillableEl.textContent = '$0.00'; 
+                } else {
+                    rowEl.classList.remove('hidden-row'); 
+                    let taxableAmount = parseFloat(taxableAmountStr);
+
+                    if (isNaN(taxableAmount) || taxableAmount < 0) {
+                        displayError(`Invalid input for Taxable Amount ${rowIndex}. Please use positive numbers.`);
+                        taxableInputEl.focus();
+                        allInputsValid = false;
+                        totalBillableEl.textContent = '$0.00'; 
+                    } else {
+                        overallGrandTotalTaxable += taxableAmount; 
+
+                        const deMinimisAmount = taxableAmount * RATES.deMinimis;
+                        const fusfAmount = deMinimisAmount * RATES.fusf;
+                        const fccAmount = deMinimisAmount * RATES.fccFee;
+                        const totalFeesForThisInput = fusfAmount + fccAmount; 
+                        const totalBillableForThisInput = taxableAmount + totalFeesForThisInput;
+                        
+                        totalBillableEl.textContent = `$${totalBillableForThisInput.toFixed(2)}`;
+                        overallGrandTotalBillable += totalBillableForThisInput;
+                    }
+                }
+            });
+
+            const e911LocationsStr = e911LocationsInput.value;
+            let e911Locations = 0;
+            let e911Cost = 0;
+
+            if (e911LocationsStr.trim() !== '') {
+                e911Locations = parseInt(e911LocationsStr, 10);
+                if (isNaN(e911Locations) || e911Locations < 0) {
+                    displayError('Invalid input for E911 Locations. Please use a positive whole number.');
+                    e911LocationsInput.focus();
+                    allInputsValid = false; 
+                    e911TotalCostEl.textContent = '$0.00';
+                } else {
+                    e911Cost = e911Locations * RATES.e911PerLocation;
+                    e911TotalCostEl.textContent = `$${e911Cost.toFixed(2)}`;
+                    overallGrandTotalBillable += e911Cost; 
+                }
+            } else {
+                 e911TotalCostEl.textContent = '$0.00'; 
+            }
+            
+            const totalCalculatedTaxAndFees = overallGrandTotalBillable - overallGrandTotalTaxable;
+
+            if (allInputsValid || overallGrandTotalBillable > 0 || overallGrandTotalTaxable > 0) {
+                grandTotalTaxableAmountEl.textContent = `$${overallGrandTotalTaxable.toFixed(2)}`;
+                totalTaxAndFeesEl.textContent = `$${totalCalculatedTaxAndFees.toFixed(2)}`;
+                grandTotalBillableAmountEl.textContent = `$${overallGrandTotalBillable.toFixed(2)}`;
+            } else if (!allInputsValid && overallGrandTotalBillable === 0 && overallGrandTotalTaxable === 0) { 
+                grandTotalTaxableAmountEl.textContent = '$0.00';
+                totalTaxAndFeesEl.textContent = '$0.00';
+                grandTotalBillableAmountEl.textContent = '$0.00';
+            }
+        }
+
+        calculateAllButton.addEventListener('click', calculateAllFees);
+
+    </script>
 </body>
 </html>
